@@ -16,12 +16,10 @@ const InputField = (props) => {
     // Controls responsive textfield size
     useEffect(() => {
       if(!isSmallScreen) {
-        console.log("Small triggered")
         setInputSize("small");
       }
       else {
         setInputSize("medium");
-        console.log("other triggered")
       }
     }, [isSmallScreen])
     

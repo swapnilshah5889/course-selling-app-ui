@@ -1,0 +1,31 @@
+.custom-button {
+    color: #fff;
+    background-color: rgb(0, 189, 0);
+    border:2px solid #009127;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+
+    .disabled{
+        color: red;
+    }
+    
+}
+.btn-primary:disabled {
+    color: #fff;
+    background-color: rgb(0, 140, 0);
+    border:none;
+}
+
+.btn-primary:disabled:hover {
+    cursor: not-allowed;
+    color: #fff;
+    background-color: rgb(0, 140, 0);
+    border:none;
+}
+
+.custom-button:hover {
+    background-color: rgb(0, 230, 0);
+    border:2px solid #00c534;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+}

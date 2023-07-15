@@ -1,0 +1,74 @@
+$small-screen: 750px;
+$medium-screen: 1024px;
+
+.signup-container {
+    height: 100vh;
+    width: 100%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .signup-card{
+        padding: 3%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-radius: 20px;
+        background-color: aqua;
+        background-color: white;
+        box-shadow: 0px 0px 3px rgba($color: #000000, $alpha: 0.2);
+        height:auto;
+        width: 50%;
+        
+        @media (max-width: $small-screen) {
+            width: 80%;
+        }
+        @media (min-width: $small-screen) and (max-width: $medium-screen) {
+            width: 60%;
+        }
+        
+
+        .btn-container{
+            display: flex;
+            justify-content: space-around;
+            @media (max-width: $small-screen) {
+                margin-bottom: 5%;
+            }
+        }
+
+        .header{
+            margin-top: 5%;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #555;
+            font-weight: bolder;
+
+            @media (max-width: $small-screen) {
+                font-size: medium;
+            }
+            @media (min-width: $small-screen) and (min-width: $medium-screen) {
+                font-size: x-large;
+            }
+        }
+
+        .input-fields{
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            .input-field{
+                margin: 10px;
+                width: 80%;
+                @media (max-width: $small-screen) {
+                    font-size: 5px;
+                    padding: 0px;
+                }
+            }
+        }
+
+        
+
+    }
+
+}

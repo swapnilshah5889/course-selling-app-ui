@@ -16,36 +16,51 @@ import {
 } from "../../utils/firebase";
 import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
+import FirebaseLoginAPI from '../../utils/constants.js';
 
-const loginText = ["SIGN UP", "SIGNING UP..."];
+const signupText = ["SIGN UP", "SIGNING UP..."];
 const requiredText = "*Required";
 const SignUp = (props) => {
 
-    const [loginDisabled, setLoginDisabled] = useState(false);
-    const[loginTextIndex, setLoginBtnIndex] = useState(0);
     const [signupDisabled, setSignupDisabled] = useState(false);
+    const[signupTextIndex, setSignupBtnIndex] = useState(0);
     const [isEmailError, setEmailError] = useState(false);
     const [isPasswordError, setPasswordError] = useState(false);
+    const [isConfPasswordError, setConfPasswordError] = useState(false);
     const [emailText, setEmailText] = useState("");
     const [passwordText, setPasswordText] = useState("");
+    const [confPasswordText, setConfPasswordText] = useState("");
     const [alertShow, setAlertShow] = useState(false);
     const [alertText, setAlertText] = useState("");
+    const [disableAllInputs, setDisableAllInputs] = useState(false);
+    const [inputErrorText, setInputErrorText] = useState(requiredText);
 
     // This function checks after google authentication redirect
     // Whether the process was successful or not
     const checkIfUserAuthenticated = async () => {
         const response =  await getRedirectResult(auth);
+        setDisableAllInputs(true);
         if(response) {
-            console.log("Auth Response: ")
-            console.log(response)
             const {user} = response;
-            console.log(user);  
             if(user.emailVerified) {
-                console.log("Email Verified");
-                //Insert data into database
+                const body = {username:user.email, token:user.accessToken};
+                const resp = await fetch(FirebaseLoginAPI, {
+                    method:'POST',
+                    headers:{
+                        Accept: 'application.json',
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify(body)
+                })
+
+                const loginResponse = await resp.json();
+
+                console.log(loginResponse);
+                setDisableAllInputs(false);
             }
         }
         else {
+            setDisableAllInputs(false);
             console.log("Auth Error: ")
             console.log(response)
             if(response!=null) {
@@ -74,7 +89,7 @@ const SignUp = (props) => {
             // Email already registered with other method
             if(error.code == 'auth/account-exists-with-different-credential') {
                 console.log("User already exists authenticated with different method")
-                setAlertText("User already registered using different account.")
+                setAlertText("This email is already registered using different account.")
                 setAlertShow(true);
             }
             // Something went wrong, try again later
@@ -90,11 +105,26 @@ const SignUp = (props) => {
         let allValid = true;
         if(emailText.length==0) {
             setEmailError(true);
+            setInputErrorText(requiredText);
             allValid = false;
         }        
 
         if(passwordText.length == 0) {
             setPasswordError(true);
+            setInputErrorText(requiredText);
+            allValid = false;
+        }
+
+        if(confPasswordText.length == 0) {
+            setConfPasswordError(true);
+            setInputErrorText(requiredText);
+            allValid = false;
+        }
+
+        if((confPasswordText.length>0 && passwordText.length>0) && 
+            confPasswordText !== passwordText) {
+            setConfPasswordError(true);
+            setInputErrorText("Passwords do not match");
             allValid = false;
         }
         return allValid;
@@ -109,17 +139,17 @@ const SignUp = (props) => {
         setPasswordError(false);
         setPasswordText(passwordStr);
     }
-    const handleLoginClick = (event) => {
+    const onConfPasswordChange = (passwordStr) => {
+        setConfPasswordError(false);
+        setConfPasswordText(passwordStr);
+    }
+    const handleSignUpClick = (event) => {
         if(validateInputs()) {
-            setLoginDisabled(!loginDisabled);
-            setLoginBtnIndex((loginTextIndex+1)%2)
+            setSignupDisabled(!signupDisabled);
+            setSignupBtnIndex((signupTextIndex+1)%2)
         }
     }
 
-    const handleSignUpClick = (event) => {
-        setLoginDisabled(!loginDisabled);
-        setLoginBtnIndex((loginTextIndex+1)%2)
-    }
     return (
         <div className="signup-container">
             
@@ -163,8 +193,9 @@ const SignUp = (props) => {
                         label="Email"
                         type="email"
                         isError={isEmailError}
-                        helperText={requiredText}
+                        helperText={inputErrorText}
                         onTextChange = {onEmailChange}
+                        disabled={disableAllInputs}
                     />
                     <InputField 
                         className="input-field"
@@ -172,20 +203,31 @@ const SignUp = (props) => {
                         label="Password"
                         type="password"
                         isError={isPasswordError}
-                        helperText={requiredText}
+                        helperText={inputErrorText}
                         onTextChange = {onPasswordChange}
+                        disabled={disableAllInputs}
+                    />
+                    <InputField 
+                        className="input-field"
+                        variant = "outlined"
+                        label="Confirm Password"
+                        type="password"
+                        isError={isConfPasswordError}
+                        helperText={inputErrorText}
+                        onTextChange = {onConfPasswordChange}
+                        disabled={disableAllInputs}
                     />
                 </div>
                 <br/>
 
-                {/* Login Button */}
+                {/* Signup Button */}
                 <div className="btn-container">
                     <MyButton 
-                        btnText={loginText[loginTextIndex]}
+                        btnText={signupText[signupTextIndex]}
                         variant="primary"
                         size="lg"
-                        btnDisabled={loginDisabled}
-                        handleClick = {handleLoginClick}
+                        btnDisabled={signupDisabled || disableAllInputs}
+                        handleClick = {handleSignUpClick}
                     />
                 </div>
                 
@@ -201,13 +243,13 @@ const SignUp = (props) => {
                 {/* Firebase Authentication */}
                 <div className="firebase-auth-ctn">
                     <img 
-                        className="firebase-img-btn" 
-                        onClick={signInWithGoogleRedirect} 
+                        className={`firebase-img-btn${disableAllInputs?' disabled':''}`} 
+                        onClick={!disableAllInputs?signInWithGoogleRedirect:null} 
                         src={GoogleIcon} 
                         alt="google" />
                     <img 
-                        onClick={handleFacebookAuth}
-                        className="firebase-img-btn" 
+                        onClick={!disableAllInputs?handleFacebookAuth:null}
+                        className={`firebase-img-btn${disableAllInputs?' disabled':''}`} 
                         src={FacebookIcon} 
                         alt="facebook" />
                 </div>

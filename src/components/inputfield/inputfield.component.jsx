@@ -8,7 +8,11 @@ const InputField = (props) => {
     let helperText = "";
     const isError = ("isError" in props)?props.isError : false;
     if(isError) {
-        helperText = ("helperText" in props)?props.helperText : "";
+      helperText = ("helperText" in props)?props.helperText : "";
+    }
+    let disabled = false;
+    if('disabled' in props) {
+      disabled = props.disabled;
     }
 
     const isSmallScreen = useMediaQuery('(min-width:750px)');
@@ -29,6 +33,7 @@ const InputField = (props) => {
     }
     return (
         <TextField 
+            disabled={disabled}
             className={className}
             variant={variant}
             label={label}

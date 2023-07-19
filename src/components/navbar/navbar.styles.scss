@@ -1,0 +1,52 @@
+@import '../../colors.css';
+
+.bg-body-tertiary {
+    background-color: var(--primary-color);
+
+    .navbar-btn {
+        border-radius: 10px;
+        box-shadow: 0px 0px 4px rgba($color: #000000, $alpha: 0.5);
+        background-color: var(--secondary-color);
+        transition: all 0.3s ease; 
+        
+        .btn-link {
+            color: white;
+            text-decoration: none;
+        }
+    }
+
+    .navbar-collapse {
+        margin-left: 5%;
+        -ms-flex-preferred-size: 100%;
+        flex-basis: 100%;
+        -ms-flex-positive: 1;
+        justify-content: space-between;
+        flex-grow: 1;
+        -ms-flex-align: center;
+        align-items: center;
+
+    }
+    
+    .navbar-btn:hover{
+        box-shadow: 0px 0px 0px rgba($color: #000000, $alpha: 0.5);
+        background-color: var(--secondary-bright-color);
+    }
+    
+    .navbar-link-btn {
+        padding: 0;
+    }
+
+    .navbar-text{
+        text-decoration:none;
+        color: white;
+    }
+
+    #navbarScroll {
+        
+    .navbar-text{
+        text-decoration:none;
+        color: white;
+    }
+    }
+}
+

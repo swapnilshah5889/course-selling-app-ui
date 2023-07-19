@@ -45,10 +45,10 @@ function NavBar(props) {
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav
-                    className="me-auto my-2 my-lg-0"
-                    style={{ maxHeight: '100px' }}
-                    navbarScroll
-                    >
+                        className="me-auto my-2 my-lg-0"
+                        style={{ maxHeight: '100px' }}
+                        navbarScroll
+                        >
                         <Nav.Link className="navbar-text" eventKey="1">Home</Nav.Link>
                         <Nav.Link className="navbar-text" eventKey="2">Link</Nav.Link>
                     </Nav>

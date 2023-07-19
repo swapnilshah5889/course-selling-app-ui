@@ -16,7 +16,7 @@ import {
 } from "../../utils/firebase";
 import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
-import FirebaseLoginAPI from '../../utils/constants.js';
+import APIS from '../../utils/constants.js';
 
 const signupText = ["SIGN UP", "SIGNING UP..."];
 const requiredText = "*Required";
@@ -44,7 +44,7 @@ const SignUp = (props) => {
             const {user} = response;
             if(user.emailVerified) {
                 const body = {username:user.email, token:user.accessToken};
-                const resp = await fetch(FirebaseLoginAPI, {
+                const resp = await fetch(APIS.FirebaseLoginAPI, {
                     method:'POST',
                     headers:{
                         Accept: 'application.json',
@@ -71,10 +71,12 @@ const SignUp = (props) => {
         }
     };
     
+    // Firebase Redirect Check
     useEffect(() => {
         checkIfUserAuthenticated();
     }, [])
 
+    // Handle Facebook Auth
     const handleFacebookAuth = async () => {
         try {
             
@@ -101,6 +103,7 @@ const SignUp = (props) => {
         }
     }
 
+    // Signup Form Validation
     const validateInputs = () => {
         let allValid = true;
         if(emailText.length==0) {
@@ -130,26 +133,76 @@ const SignUp = (props) => {
         return allValid;
     }
 
+    // Email Change Event 
     const onEmailChange = (emailStr) => {
         setEmailError(false);
         setEmailText(emailStr);
     }
 
+    // Password change event
     const onPasswordChange = (passwordStr) => {
         setPasswordError(false);
         setPasswordText(passwordStr);
     }
+
+    // Confirm password change event
     const onConfPasswordChange = (passwordStr) => {
         setConfPasswordError(false);
         setConfPasswordText(passwordStr);
     }
-    const handleSignUpClick = (event) => {
-        if(validateInputs()) {
-            setSignupDisabled(!signupDisabled);
-            setSignupBtnIndex((signupTextIndex+1)%2)
+
+    // Handle Signup click 
+    const handleSignUpClick = async (event) => {
+        try {
+            if(validateInputs()) {
+                
+                //Disable Inputs
+                setSignupDisabled(true);
+                setSignupBtnIndex(1)
+                // Sign up API call
+                const body = {username:emailText, password:passwordText};
+                const resp = await fetch(APIS.SignUpAPI, {
+                    method:'POST',
+                    headers:{
+                        Accept: 'application.json',
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify(body)
+                })
+                console.log("Response");
+                console.log(APIS.SignUpAPI);
+                console.log(resp);
+                // Successful API Call
+                if(resp.status==200) {
+                    const response = await resp.json();
+                    console.log(response);
+                    if(response.status) {
+                        setAlertShow(true);
+                        setAlertText(response.message);
+                    }
+                    else {
+                        setAlertShow(true);
+                        setAlertText(response.message);
+                    }
+                }
+                else {
+                    setAlertShow(true);
+                    setAlertText("Something went wrong. Please try again.");
+                }
+                // Enable Inputs
+                setSignupDisabled(false);
+                setSignupBtnIndex(0)
+            }
+        } catch (error) {
+            setAlertShow(true);
+            setAlertText("Something went wrong. Please try again later.")
+            setSignupDisabled(false);
+            setSignupBtnIndex(0)
+            console.log(error);
         }
     }
 
+    // Component
     return (
         <div className="signup-container">
             

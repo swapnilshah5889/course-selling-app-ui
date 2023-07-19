@@ -29,6 +29,8 @@ const SignUp = (props) => {
     const [isConfPasswordError, setConfPasswordError] = useState(false);
     const [emailText, setEmailText] = useState("");
     const [passwordText, setPasswordText] = useState("");
+    const [passwordErrorText, setPasswordErrorText] = useState(requiredText);
+    const [emailErrorText, setEmailErrorText] = useState(requiredText);
     const [confPasswordText, setConfPasswordText] = useState("");
     const [alertShow, setAlertShow] = useState(false);
     const [alertText, setAlertText] = useState("");
@@ -103,18 +105,35 @@ const SignUp = (props) => {
         }
     }
 
+    function validateEmail(email) {
+        var re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    }
+
     // Signup Form Validation
     const validateInputs = () => {
         let allValid = true;
+        // Email required
         if(emailText.length==0) {
             setEmailError(true);
-            setInputErrorText(requiredText);
+            setEmailErrorText(requiredText);
             allValid = false;
         }        
+        // Invalid email
+        else if(!validateEmail(emailText)) {
+            setEmailError(true);
+            setEmailErrorText("Invalid Email");
+            allValid = false;
+        }
 
         if(passwordText.length == 0) {
             setPasswordError(true);
-            setInputErrorText(requiredText);
+            setPasswordErrorText(requiredText);
+            allValid = false;
+        }
+        else if(passwordText.length<8) {
+            setPasswordErrorText("Password must be of minimum 8 characters");
+            setPasswordError(true);
             allValid = false;
         }
 
@@ -157,7 +176,7 @@ const SignUp = (props) => {
             if(validateInputs()) {
                 
                 //Disable Inputs
-                setSignupDisabled(true);
+                setDisableAllInputs(true);
                 setSignupBtnIndex(1)
                 // Sign up API call
                 const body = {username:emailText, password:passwordText};
@@ -169,9 +188,6 @@ const SignUp = (props) => {
                     },
                     body:JSON.stringify(body)
                 })
-                console.log("Response");
-                console.log(APIS.SignUpAPI);
-                console.log(resp);
                 // Successful API Call
                 if(resp.status==200) {
                     const response = await resp.json();
@@ -190,15 +206,14 @@ const SignUp = (props) => {
                     setAlertText("Something went wrong. Please try again.");
                 }
                 // Enable Inputs
-                setSignupDisabled(false);
+                setDisableAllInputs(false);
                 setSignupBtnIndex(0)
             }
         } catch (error) {
             setAlertShow(true);
             setAlertText("Something went wrong. Please try again later.")
-            setSignupDisabled(false);
+            setDisableAllInputs(false);
             setSignupBtnIndex(0)
-            console.log(error);
         }
     }
 
@@ -246,7 +261,7 @@ const SignUp = (props) => {
                         label="Email"
                         type="email"
                         isError={isEmailError}
-                        helperText={inputErrorText}
+                        helperText={emailErrorText}
                         onTextChange = {onEmailChange}
                         disabled={disableAllInputs}
                     />
@@ -256,7 +271,7 @@ const SignUp = (props) => {
                         label="Password"
                         type="password"
                         isError={isPasswordError}
-                        helperText={inputErrorText}
+                        helperText={passwordErrorText}
                         onTextChange = {onPasswordChange}
                         disabled={disableAllInputs}
                     />

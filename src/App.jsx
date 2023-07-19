@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -11,8 +11,17 @@ import LoginPage from './pages/login/login.page'
 const actionBtnTextArr = ["Login", "Sign Up", "Logout"];
 const actionBtnLinkPath = ["/login", "/signup", "/logout"];
 function App() {
-
+  
   const [navbarActionIndex, setNavbarActionIndex] = useState(0);
+
+  useEffect(() => {
+    if(window.location.pathname == "/login") {
+      setNavbarActionIndex(1);
+    }
+    else if(window.location.pathname == "/signup") {
+      setNavbarActionIndex(0);
+    }
+  }, [window.location.pathname])
 
   const handleNavbarActionButtonClick = (index) => {
     setNavbarActionIndex(index);

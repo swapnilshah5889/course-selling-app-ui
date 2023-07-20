@@ -2,12 +2,12 @@ import { Typography, Alert, IconButton } from "@mui/material";
 import MyButton from "../../components/button/button.component";
 import './login.page.styles.scss';
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Card } from "react-bootstrap";
 import InputField from "../../components/inputfield/inputfield.component";
 import { FacebookAuthProvider, getRedirectResult, signInWithPopup } from "firebase/auth";
 import CloseIcon from '@mui/icons-material/Close';
 import Collapse from '@mui/material/Collapse';
-
 import { 
     auth,
     signInWithGooglePopup, 
@@ -16,12 +16,15 @@ import {
 } from "../../utils/firebase";
 import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
-import APIS from '../../utils/constants.js';
+import APIS from '../../utils/api_urls.js';
+import {userToken} from '../../utils/constants.js';
+
 
 const signupText = ["LOGIN", "LOGGING IN..."];
 const requiredText = "*Required";
 const LoginPage = (props) => {
 
+    const navigate = useNavigate();
     const[signupTextIndex, setSignupBtnIndex] = useState(0);
     const [isEmailError, setEmailError] = useState(false);
     const [isPasswordError, setPasswordError] = useState(false);
@@ -69,9 +72,18 @@ const LoginPage = (props) => {
             }
         }
     };
+
+    // If user already logged in then redirect to home
+    function checkIfUserAlreadyLoggedIn() {
+        if(localStorage.getItem(userToken)) {
+            localStorage.removeItem(userToken);
+            navigate('/', {replace:true});
+        }
+    }
     
     // Firebase Redirect Check
     useEffect(() => {
+        checkIfUserAlreadyLoggedIn();
         checkIfUserAuthenticated();
     }, [])
 
@@ -165,16 +177,15 @@ const LoginPage = (props) => {
                     method:'POST',
                     headers:headers
                 })
-
-                console.log(resp);
                 // Successful API Call
                 if(resp.status==200) {
                     const response = await resp.json();
-                    console.log(response);
+                    // Successful Login
                     if(response.status) {
-                        setAlertShow(true);
-                        setAlertText(response.message);
+                        localStorage.setItem(userToken, response.token);
+                        navigate('/', {replace:true});
                     }
+                    // Login Failed
                     else {
                         setAlertShow(true);
                         setAlertText(response.message);

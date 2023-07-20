@@ -16,7 +16,7 @@ import {
 } from "../../utils/firebase";
 import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
-import APIS from '../../utils/constants.js';
+import APIS from '../../utils/api_urls.js';
 
 const signupText = ["SIGN UP", "SIGNING UP..."];
 const requiredText = "*Required";

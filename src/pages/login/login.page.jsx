@@ -18,14 +18,14 @@ import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
 import APIS from '../../utils/api_urls.js';
 import {userTokenLCKey, userEmailLCKey} from '../../utils/constants.js';
-import { useRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { userStateAtom } from "../../store/atoms/user";
 
 const signupText = ["LOGIN", "LOGGING IN..."];
 const requiredText = "*Required";
 const LoginPage = (props) => { 
 
-    const [userState, setUserState] = useRecoilState(userStateAtom);
+    const setUserState = useSetRecoilState(userStateAtom);
     const navigate = useNavigate();
     const[signupTextIndex, setSignupBtnIndex] = useState(0);
     const [isEmailError, setEmailError] = useState(false);

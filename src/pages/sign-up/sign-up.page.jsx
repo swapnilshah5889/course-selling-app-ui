@@ -17,13 +17,16 @@ import {
 import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
 import APIS from '../../utils/api_urls.js';
-import { userTokenLCKey } from "../../utils/constants";
+import { userStateAtom } from "../../store/atoms/user";
+import { useSetRecoilState } from "recoil";
+import { userEmailLCKey, userTokenLCKey } from "../../utils/constants";
 
 const signupText = ["SIGN UP", "SIGNING UP..."];
 const requiredText = "*Required";
-const SignUp = (props) => {
+const SignUp = () => {
 
     const navigate = useNavigate();
+    const setUserState = useSetRecoilState(userStateAtom);
     const [signupDisabled, setSignupDisabled] = useState(false);
     const[signupTextIndex, setSignupBtnIndex] = useState(0);
     const [isEmailError, setEmailError] = useState(false);
@@ -44,40 +47,51 @@ const SignUp = (props) => {
     const checkIfUserAuthenticated = async () => {
         const response =  await getRedirectResult(auth);
         setDisableAllInputs(true);
-        if(response) {
-            const {user} = response;
-            if(user.emailVerified) {
-                const body = {username:user.email, token:user.accessToken};
-                const resp = await fetch(APIS.FirebaseLoginAPI, {
-                    method:'POST',
-                    headers:{
-                        Accept: 'application.json',
-                        'Content-Type': 'application/json'
-                    },
-                    body:JSON.stringify(body)
-                })
-
-                const loginResponse = await resp.json();
-
-                console.log(loginResponse);
+        try {
+            if(response) {
+                const {user} = response;
+                if(user.emailVerified) {
+                    const body = {username:user.email, token:user.accessToken};
+                    const resp = await fetch(APIS.FirebaseLoginAPI, {
+                        method:'POST',
+                        headers:{
+                            Accept: 'application.json',
+                            'Content-Type': 'application/json'
+                        },
+                        body:JSON.stringify(body)
+                    })
+    
+                    if(resp.status == 200){
+                        const loginResponse = await resp.json();
+                        console.log(loginResponse);
+                        setUserLoggedIn(user.email, loginResponse.token);
+                        navigateToHome(); 
+                    }
+                    else {
+                        setAlertText("Sign Up failed!")
+                        setAlertShow(true);
+                    }
+                    setDisableAllInputs(false);
+                }
+            }
+            else {
                 setDisableAllInputs(false);
+                if(response!=null) {
+                    console.log("Auth Error: ")
+                    console.log(response)
+                    setAlertText("Something went wrong. Please try again later.")
+                    setAlertShow(true);
+                }
             }
-        }
-        else {
+        } catch (error) {
+            setAlertText("Something went wrong. Please try again later.")
             setDisableAllInputs(false);
-            console.log("Auth Error: ")
-            console.log(response)
-            if(response!=null) {
-                
-                setAlertText("Something went wrong. Please try again later.")
-                setAlertShow(true);
-            }
         }
     };
     
     function checkIfUserLoggedIn() {
         if(localStorage.getItem(userTokenLCKey)){
-            navigate('/', {replace:true});
+            navigateToHome();
         }
     }
     // Firebase Redirect Check
@@ -200,9 +214,12 @@ const SignUp = (props) => {
                 if(resp.status==200) {
                     const response = await resp.json();
                     console.log(response);
+                    // Success
                     if(response.status) {
                         setAlertShow(true);
                         setAlertText(response.message);
+                        setUserLoggedIn(emailText, response.token);
+                        navigateToHome();
                     }
                     else {
                         setAlertShow(true);
@@ -223,6 +240,27 @@ const SignUp = (props) => {
             setDisableAllInputs(false);
             setSignupBtnIndex(0)
         }
+    }
+
+    // Set User Logged In - Recoil State
+    const setUserLoggedIn = function(email, token) {
+        try {
+            localStorage.setItem(userTokenLCKey, token);
+            localStorage.setItem(userEmailLCKey, email);
+            setUserState({
+                isLoggedIn : true,
+                userEmail : localStorage.getItem(userEmailLCKey),
+                token : localStorage.getItem(userTokenLCKey)
+            });
+
+            
+        } catch (error) {
+            console.log(error);
+        }
+    } 
+
+    const navigateToHome = function() {
+        navigate('/', {replace:true});
     }
 
     // Component

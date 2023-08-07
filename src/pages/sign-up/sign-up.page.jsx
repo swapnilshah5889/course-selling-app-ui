@@ -7,7 +7,7 @@ import InputField from "../../components/inputfield/inputfield.component";
 import { FacebookAuthProvider, getRedirectResult, signInWithPopup } from "firebase/auth";
 import CloseIcon from '@mui/icons-material/Close';
 import Collapse from '@mui/material/Collapse';
-
+import { useNavigate } from "react-router-dom";
 import { 
     auth,
     signInWithGooglePopup, 
@@ -17,11 +17,13 @@ import {
 import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
 import APIS from '../../utils/api_urls.js';
+import { userTokenLCKey } from "../../utils/constants";
 
 const signupText = ["SIGN UP", "SIGNING UP..."];
 const requiredText = "*Required";
 const SignUp = (props) => {
 
+    const navigate = useNavigate();
     const [signupDisabled, setSignupDisabled] = useState(false);
     const[signupTextIndex, setSignupBtnIndex] = useState(0);
     const [isEmailError, setEmailError] = useState(false);
@@ -73,8 +75,14 @@ const SignUp = (props) => {
         }
     };
     
+    function checkIfUserLoggedIn() {
+        if(localStorage.getItem(userTokenLCKey)){
+            navigate('/', {replace:true});
+        }
+    }
     // Firebase Redirect Check
     useEffect(() => {
+        checkIfUserLoggedIn();
         checkIfUserAuthenticated();
     }, [])
 

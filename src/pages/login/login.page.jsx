@@ -17,13 +17,15 @@ import {
 import GoogleIcon from '../../assets/google.png';
 import FacebookIcon from '../../assets/facebook.png';
 import APIS from '../../utils/api_urls.js';
-import {userToken} from '../../utils/constants.js';
-
+import {userTokenLCKey, userEmailLCKey} from '../../utils/constants.js';
+import { useRecoilState } from "recoil";
+import { userStateAtom } from "../../store/atoms/user";
 
 const signupText = ["LOGIN", "LOGGING IN..."];
 const requiredText = "*Required";
-const LoginPage = (props) => {
+const LoginPage = (props) => { 
 
+    const [userState, setUserState] = useRecoilState(userStateAtom);
     const navigate = useNavigate();
     const[signupTextIndex, setSignupBtnIndex] = useState(0);
     const [isEmailError, setEmailError] = useState(false);
@@ -42,42 +44,52 @@ const LoginPage = (props) => {
     const checkIfUserAuthenticated = async () => {
         const response =  await getRedirectResult(auth);
         setDisableAllInputs(true);
-        if(response) {
-            const {user} = response;
-            if(user.emailVerified) {
-                const body = {username:user.email, token:user.accessToken};
-                const resp = await fetch(APIS.FirebaseLoginAPI, {
-                    method:'POST',
-                    headers:{
-                        Accept: 'application.json',
-                        'Content-Type': 'application/json'
-                    },
-                    body:JSON.stringify(body)
-                })
-
-                const loginResponse = await resp.json();
-
-                console.log(loginResponse);
+        try {
+            if(response) {
+                const {user} = response;
+                if(user.emailVerified) {
+                    const body = {username:user.email, token:user.accessToken};
+                    const resp = await fetch(APIS.FirebaseLoginAPI, {
+                        method:'POST',
+                        headers:{
+                            Accept: 'application.json',
+                            'Content-Type': 'application/json'
+                        },
+                        body:JSON.stringify(body)
+                    })
+    
+                    if(resp.status == 200){
+                        const loginResponse = await resp.json();
+                        console.log(loginResponse);
+                        setUserLoggedIn(user.email, loginResponse.token);
+                        navigateToHome(); 
+                    }
+                    else {
+                        setAlertText("Login failed!")
+                        setAlertShow(true);
+                    }
+                    setDisableAllInputs(false);
+                }
+            }
+            else {
                 setDisableAllInputs(false);
+                if(response!=null) {
+                    console.log("Auth Error: ")
+                    console.log(response)
+                    setAlertText("Something went wrong. Please try again later.")
+                    setAlertShow(true);
+                }
             }
-        }
-        else {
+        } catch (error) {
+            setAlertText("Something went wrong. Please try again later.")
             setDisableAllInputs(false);
-            console.log("Auth Error: ")
-            console.log(response)
-            if(response!=null) {
-                
-                setAlertText("Something went wrong. Please try again later.")
-                setAlertShow(true);
-            }
         }
     };
 
     // If user already logged in then redirect to home
     function checkIfUserAlreadyLoggedIn() {
-        if(localStorage.getItem(userToken)) {
-            localStorage.removeItem(userToken);
-            navigate('/', {replace:true});
+        if(localStorage.getItem(userTokenLCKey)) {
+            navigateToHome();
         }
     }
     
@@ -182,8 +194,9 @@ const LoginPage = (props) => {
                     const response = await resp.json();
                     // Successful Login
                     if(response.status) {
-                        localStorage.setItem(userToken, response.token);
-                        navigate('/', {replace:true});
+                        // window.location = '/';
+                        setUserLoggedIn(emailText, response.token);
+                        navigateToHome();
                     }
                     // Login Failed
                     else {
@@ -206,6 +219,27 @@ const LoginPage = (props) => {
             setSignupBtnIndex(0)
             console.log(error);
         }
+    }
+
+    // Set User Logged In - Recoil State
+    const setUserLoggedIn = function(email, token) {
+        try {
+            localStorage.setItem(userTokenLCKey, token);
+            localStorage.setItem(userEmailLCKey, email);
+            setUserState({
+            isLoggedIn : true,
+            userEmail : localStorage.getItem(userEmailLCKey),
+            token : localStorage.getItem(userTokenLCKey)
+            });
+
+            
+        } catch (error) {
+            console.log(error);
+        }
+    } 
+
+    const navigateToHome = function() {
+        navigate('/', {replace:true});
     }
 
     return (

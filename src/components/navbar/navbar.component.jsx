@@ -5,34 +5,66 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import './navbar.styles.scss';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MyButton from '../button/button.component';
+import { userStateAtom } from '../../store/atoms/user';
+import { useRecoilValue, useSetRecoilState, useResetRecoilState } from 'recoil';
+import { userTokenLCKey, userEmailLCKey } from '../../utils/constants';
+
+const actionBtnTextArr = ["Login", "Sign Up", "Logout"];
+const actionBtnLinkPath = ["/login", "/signup", "/"];
 
 function NavBar(props) {
-    const {
-        actionButtonText, 
-        actionBtnClick, 
-        isSignup, 
-        actionBtnLinkPath} = props;
-    const [isUserLoggedIn, setUserLoggedIn] = useState(false);
-    const [isSignUp, setIsSignUp] = useState(isSignup);
-    const [navBarCollapse, setNavbarCollapse] = useState(true);
-    function handleActionButtonClick(event) {
-        if(isUserLoggedIn) {
-            actionBtnClick(2);
+    const userStateReset = useResetRecoilState(userStateAtom);
+    const [isLogin, setIsLogin] = useState(false);
+    const userState = useRecoilValue(userStateAtom);
+    const [actionButtonIndex, setActionButtonIndex] = useState(0);
+
+    // Handle navbar button text
+    useEffect(() => {
+      if(userState.isLoggedIn) { 
+        setActionButtonIndex(2);
+      }
+      else {
+        if(isLogin){
+            setActionButtonIndex(1);
         }
         else {
-            if(isSignUp){
-                actionBtnClick(0);
+            setActionButtonIndex(0);
+        }
+      }
+    },[isLogin, userState]);
+
+
+
+    
+    const [navBarCollapse, setNavbarCollapse] = useState(true);
+
+    function handleActionButtonClick(event) {
+        if(userState.isLoggedIn) {
+            handleLogout();
+        }
+        else {
+            if(isLogin){
+                setActionButtonIndex(1);
             }
             else {
-                actionBtnClick(1);
+                
+                setActionButtonIndex(0);
             }
-            setIsSignUp(!isSignUp);
+            setIsLogin(!isLogin);
             setNavbarCollapse(true);
         }
     }
+
+    const handleLogout = () => {
+        localStorage.removeItem(userEmailLCKey);
+        localStorage.removeItem(userTokenLCKey);
+        setIsLogin(false);
+        userStateReset();
+        console.log("User Logout successful!");
+      }
 
     function handleToggle(event) {
         console.log(event);
@@ -49,17 +81,17 @@ function NavBar(props) {
                         style={{ maxHeight: '100px' }}
                         navbarScroll
                         >
-                        <Nav.Link className="navbar-text" eventKey="1">Home</Nav.Link>
-                        <Nav.Link className="navbar-text" eventKey="2">Link</Nav.Link>
+                        <Nav.Link className="navbar-text" eventkey="1">Home</Nav.Link>
+                        <Nav.Link className="navbar-text" eventkey="2">Link</Nav.Link>
                     </Nav>
                 
-                    <Nav.Link className="navbar-link-btn" eventKey="3">
+                    <Nav.Link className="navbar-link-btn" eventkey="3">
                         <Link 
-                            eventKey="1"
+                            eventkey="1"
                             className='btn-link'
-                            to={actionBtnLinkPath}>
+                            to={actionBtnLinkPath[actionButtonIndex]}>
                             <MyButton 
-                                btnText={actionButtonText}
+                                btnText={actionBtnTextArr[actionButtonIndex]}
                                 variant="primary"
                                 size="lg"
                                 handleClick={handleActionButtonClick}/>

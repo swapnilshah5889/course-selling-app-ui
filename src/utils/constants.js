@@ -1,2 +1,3 @@
 
-export const userToken = "userToken";
+export const userTokenLCKey = "userToken";
+export const userEmailLCKey = "userEmail";

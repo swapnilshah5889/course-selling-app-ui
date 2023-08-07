@@ -7,43 +7,50 @@ import NavBar from './components/navbar/navbar.component'
 import { BrowserRouter as Router,Route, Routes } from 'react-router-dom';
 import HomePage from './pages/home/home.page';
 import LoginPage from './pages/login/login.page'
+import { userTokenLCKey, userEmailLCKey } from './utils/constants'
+import {
+  useRecoilState,
+  useSetRecoilState,
+  useResetRecoilState 
+} from 'recoil';
+import { userStateAtom } from './store/atoms/user'
 
-const actionBtnTextArr = ["Login", "Sign Up", "Logout"];
-const actionBtnLinkPath = ["/login", "/signup", "/logout"];
 function App() {
-  
-  const [navbarActionIndex, setNavbarActionIndex] = useState(0);
 
+  const setUserState = useSetRecoilState(userStateAtom);
+
+  // On url path change
   useEffect(() => {
-    if(window.location.pathname == "/login") {
-      setNavbarActionIndex(1);
+    
+    if(localStorage.getItem(userTokenLCKey)) {
+      setUserLoggedIn();
     }
-    else if(window.location.pathname == "/signup") {
-      setNavbarActionIndex(0);
-    }
+
+    console.log(window.location.pathname);
   }, [window.location.pathname])
 
-  const handleNavbarActionButtonClick = (index) => {
-    setNavbarActionIndex(index);
-    if(index == 0) {
-      
-    }
-    else {
+  // Set User Logged In - Recoil State
+  const setUserLoggedIn = function() {
+    try {
+        setUserState({
+          isLoggedIn : true,
+          userEmail : localStorage.getItem(userEmailLCKey),
+          token : localStorage.getItem(userTokenLCKey)
+        });
 
+        
+    } catch (error) {
+        console.log(error);
     }
-  }
+  } 
+
 
   return (
     <Router>
       <div>
 
-        <NavBar
-          actionBtnClick = {handleNavbarActionButtonClick}
-          actionButtonText={actionBtnTextArr[navbarActionIndex]}
-          isSignup = {false}
-          actionBtnLinkPath={actionBtnLinkPath[navbarActionIndex]}
-        />
-      
+        <NavBar />
+        
         <Routes >  
             <Route index element={ <HomePage /> } />
             <Route path='/signup' element={ <SignUp /> } />

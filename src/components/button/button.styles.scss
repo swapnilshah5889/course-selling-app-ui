@@ -1,0 +1,33 @@
+@import '../../colors.css';
+
+.custom-button {
+    color: #fff;
+    background-color: var(--secondary-color);
+    border:2px solid var(--secondary-dark-color);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+
+    .disabled{
+        color: red;
+    }
+    
+}
+.btn-primary:disabled {
+    color: #fff;
+    background-color: var(--secondary-dark-color);
+    border:none;
+}
+
+.btn-primary:disabled:hover {
+    cursor: not-allowed;
+    color: #fff;
+    background-color: var(--secondary-dark-color);
+    border:none;
+}
+
+.custom-button:hover {
+    background-color: var(--secondary-bright-color);
+    border:2px solid var(--secondary-color);
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+}

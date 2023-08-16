@@ -48,27 +48,7 @@ const LoginPage = (props) => {
             if(response) {
                 const {user} = response;
                 if(user.emailVerified) {
-                    const body = {username:user.email, token:user.accessToken};
-                    const resp = await fetch(APIS.FirebaseLoginAPI, {
-                        method:'POST',
-                        headers:{
-                            Accept: 'application.json',
-                            'Content-Type': 'application/json'
-                        },
-                        body:JSON.stringify(body)
-                    })
-    
-                    if(resp.status == 200){
-                        const loginResponse = await resp.json();
-                        console.log(loginResponse);
-                        setUserLoggedIn(user.email, loginResponse.token);
-                        navigateToHome(); 
-                    }
-                    else {
-                        setAlertText("Login failed!")
-                        setAlertShow(true);
-                    }
-                    setDisableAllInputs(false);
+                    userFirebaseLogin(user.email, user.accessToken);
                 }
             }
             else {
@@ -82,9 +62,42 @@ const LoginPage = (props) => {
             }
         } catch (error) {
             setAlertText("Something went wrong. Please try again later.")
+            setAlertShow(true);
             setDisableAllInputs(false);
         }
     };
+
+    // Call firebase login API to verify the token and email and fetch JWT Token
+    const userFirebaseLogin = async (email, accessToken) => {
+        try {
+            const body = {username:email, token:accessToken};
+            const resp = await fetch(APIS.FirebaseLoginAPI, {
+                method:'POST',
+                headers:{
+                    Accept: 'application.json',
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify(body)
+            })
+
+            if(resp.status == 200){
+                const loginResponse = await resp.json();
+                console.log(loginResponse);
+                setUserLoggedIn(email, loginResponse.token);
+                navigateToHome(); 
+            }
+            else {
+                setAlertText("Login failed!")
+                setAlertShow(true);
+            }
+            setDisableAllInputs(false);
+        } catch (error) {
+            setAlertText("Something went wrong. Please try again later.")
+            setAlertShow(true);
+            setDisableAllInputs(false);
+        }
+    } 
+
 
     // If user already logged in then redirect to home
     function checkIfUserAlreadyLoggedIn() {
@@ -107,7 +120,7 @@ const LoginPage = (props) => {
             console.log("Result : ")
             console.log(result);
             const user = result.user;        
-            const credential = FacebookAuthProvider.credentialFromResult(result);
+            userFirebaseLogin(user.email, user.accessToken);
             
         } catch (error) {
 
@@ -119,6 +132,7 @@ const LoginPage = (props) => {
             }
             // Something went wrong, try again later
             else {
+                console.log(error);
                 setAlertText("Something went wrong. Please try again later.")
                 setAlertShow(true);
             }

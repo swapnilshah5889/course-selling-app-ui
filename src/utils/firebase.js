@@ -5,10 +5,7 @@ import {getAuth,
     GoogleAuthProvider,
     FacebookAuthProvider} from 'firebase/auth';
 import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc
+    getFirestore
 } from 'firebase/firestore';
 
 // Your web app's Firebase configuration

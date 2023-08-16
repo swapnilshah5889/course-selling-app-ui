@@ -1,29 +1,28 @@
-import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import './navbar.styles.scss';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MyButton from '../button/button.component';
+import { isLoggedInSelector } from '../../store/selectors/user';
 import { userStateAtom } from '../../store/atoms/user';
-import { useRecoilValue, useSetRecoilState, useResetRecoilState } from 'recoil';
+import { useRecoilValue, useResetRecoilState } from 'recoil';
 import { userTokenLCKey, userEmailLCKey } from '../../utils/constants';
 
 const actionBtnTextArr = ["Login", "Sign Up", "Logout"];
 const actionBtnLinkPath = ["/login", "/signup", "/"];
 
-function NavBar(props) {
+function NavBar() {
+    const navigate = useNavigate();
     const userStateReset = useResetRecoilState(userStateAtom);
     const [isLogin, setIsLogin] = useState(false);
-    const userState = useRecoilValue(userStateAtom);
+    const isUserLoggedIn = useRecoilValue(isLoggedInSelector);
     const [actionButtonIndex, setActionButtonIndex] = useState(0);
 
     // Handle navbar button text
     useEffect(() => {
-      if(userState.isLoggedIn) { 
+      if(isUserLoggedIn) { 
         setActionButtonIndex(2);
       }
       else {
@@ -34,15 +33,15 @@ function NavBar(props) {
             setActionButtonIndex(0);
         }
       }
-    },[isLogin, userState]);
+    },[isLogin, isUserLoggedIn]);
 
 
 
     
     const [navBarCollapse, setNavbarCollapse] = useState(true);
 
-    function handleActionButtonClick(event) {
-        if(userState.isLoggedIn) {
+    function handleActionButtonClick() {
+        if(isUserLoggedIn) {
             handleLogout();
         }
         else {
@@ -64,8 +63,11 @@ function NavBar(props) {
         setIsLogin(false);
         userStateReset();
         console.log("User Logout successful!");
-      }
+    }
 
+    const navigateToLink = (path) => {
+        navigate(path);
+    }
     function handleToggle(event) {
         console.log(event);
     }
@@ -73,7 +75,9 @@ function NavBar(props) {
     return (
         <Navbar sticky="top" collapseOnSelect expand='lg' className="bg-body-tertiary">
             <Container>
-                <Navbar.Brand className="navbar-text" href="#">Coursera</Navbar.Brand>
+                <Navbar.Brand className="navbar-text" href="#" onClick={()=>{
+                    navigateToLink('/');
+                }}>Coursera</Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav

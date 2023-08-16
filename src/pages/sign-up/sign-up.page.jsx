@@ -27,7 +27,7 @@ const SignUp = () => {
 
     const navigate = useNavigate();
     const setUserState = useSetRecoilState(userStateAtom);
-    const [signupDisabled, setSignupDisabled] = useState(false);
+    const [signupDisabled] = useState(false);
     const[signupTextIndex, setSignupBtnIndex] = useState(0);
     const [isEmailError, setEmailError] = useState(false);
     const [isPasswordError, setPasswordError] = useState(false);

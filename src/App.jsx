@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect } from 'react'
 import './App.css'
 import SignUp from './pages/sign-up/sign-up.page'
 import NavBar from './components/navbar/navbar.component'
@@ -9,9 +7,7 @@ import HomePage from './pages/home/home.page';
 import LoginPage from './pages/login/login.page'
 import { userTokenLCKey, userEmailLCKey } from './utils/constants'
 import {
-  useRecoilState,
   useSetRecoilState,
-  useResetRecoilState 
 } from 'recoil';
 import { userStateAtom } from './store/atoms/user'
 
